@@ -7,7 +7,7 @@ contract DSecret {
     address owner;
     uint256 baseAmount;
   }
-  Secret[] public secrets;
+  Secret[] private secrets;
   address owner;
 
   constructor() public {
@@ -18,25 +18,16 @@ contract DSecret {
     secrets.push(Secret(_content, _summary, msg.sender, msg.value));
   }
 
-  function getSecret(uint _index) public view returns(bytes32[2]) {
-    bytes32[2] memory ret;
-    string memory s1 = secrets[0].content;
-    string memory s2 = secrets[1].content;
-    ret[0] = stringToBytes32(s1);
-    ret[1] = stringToBytes32(s2);
-
-    return ret;
+  function getSecret(uint _idx) public view returns(string, string, uint256) {
+    if (_idx >= secrets.length) {
+      return ("", "", 0);
+    }
+    Secret storage s = secrets[_idx];
+    return (s.content, s.summary, s.baseAmount);
   }
 
-  function stringToBytes32(string memory source) pure internal returns (bytes32 result) {
-    bytes memory tempEmptyStringTest = bytes(source);
-    if (tempEmptyStringTest.length == 0) {
-      return 0x0;
-    }
-
-    assembly {
-      result := mload(add(source, 32))
-    }
+  function getSecretCount() public view returns (uint) {
+    return secrets.length;
   }
 
 }
